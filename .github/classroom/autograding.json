@@ -1,0 +1,94 @@
+{
+  "tests": [
+    {
+      "name": "Branches obrigatórias (8 branches existem)",
+      "setup": "git fetch --all",
+      "run": "FALTANDO=0; for b in fix/imagens-cores fix/rodape fix/sobre-nos-texto feature/secao-equipe fix/menu-projetos feature/secao-contato feature/redes-sociais docs/readme; do if git branch -r | grep -q \"origin/$b\"; then echo \"✅ $b\"; else echo \"❌ Faltando: $b\"; FALTANDO=$((FALTANDO+1)); fi; done; test $FALTANDO -eq 0",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 30,
+      "points": 1.5
+    },
+    {
+      "name": "Padrão de nomes das branches (feature/fix/hotfix/docs)",
+      "setup": "git fetch --all",
+      "run": "INVALIDAS=0; TOTAL=0; for b in $(git branch -r | grep -v HEAD | grep -v main | sed 's| *origin/||'); do TOTAL=$((TOTAL+1)); case \"$b\" in feature/*|fix/*|hotfix/*|docs/*|style/*|refactor/*) echo \"✅ $b\" ;; *) echo \"❌ Fora do padrão: $b\"; INVALIDAS=$((INVALIDAS+1)) ;; esac; done; echo \"Branches encontradas: $TOTAL\"; test $TOTAL -ge 1 && test $INVALIDAS -eq 0",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 30,
+      "points": 1.0
+    },
+    {
+      "name": "Conventional Commits (≥80% dos commits)",
+      "setup": "",
+      "run": "TOTAL=0; CORRETOS=0; git log --oneline --no-merges --all | while IFS= read -r line; do MSG=$(echo \"$line\" | cut -d' ' -f2-); case \"$MSG\" in Merge*) continue ;; esac; TOTAL=$((TOTAL+1)); case \"$MSG\" in feat:*|feat\\(*|fix:*|fix\\(*|docs:*|docs\\(*|style:*|style\\(*|refactor:*|refactor\\(*|test:*|test\\(*|chore:*|chore\\(*|perf:*|perf\\(*|ci:*|ci\\(*|build:*|build\\(*|revert:*|revert\\(*) CORRETOS=$((CORRETOS+1)) ;; *) echo \"❌ $line\" ;; esac; echo \"$CORRETOS $TOTAL\" > /tmp/cc_result; done; read CORRETOS TOTAL < /tmp/cc_result; echo \"$CORRETOS/$TOTAL commits no padrão\"; test \"$TOTAL\" -gt 0 && PERC=$((CORRETOS*100/TOTAL)) && echo \"Conformidade: ${PERC}%\" && test $PERC -ge 80",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 30,
+      "points": 1.5
+    },
+    {
+      "name": "Mínimo de 2 commits por branch",
+      "setup": "git fetch --all",
+      "run": "INSUF=0; ENCONTRADAS=0; for b in fix/imagens-cores fix/rodape fix/sobre-nos-texto feature/secao-equipe fix/menu-projetos feature/secao-contato feature/redes-sociais docs/readme; do if git branch -r | grep -q \"origin/$b\"; then ENCONTRADAS=$((ENCONTRADAS+1)); COUNT=$(git log --oneline origin/main..origin/$b --no-merges 2>/dev/null | wc -l); if test \"$COUNT\" -lt 2; then echo \"❌ $b: $COUNT commit(s)\"; INSUF=$((INSUF+1)); else echo \"✅ $b: $COUNT commits\"; fi; fi; done; echo \"Branches encontradas: $ENCONTRADAS/8\"; test $ENCONTRADAS -ge 1 && test $INSUF -eq 0",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 30,
+      "points": 1.0
+    },
+    {
+      "name": "Pull Requests (≥8 mergeados via merge commits)",
+      "setup": "",
+      "run": "MERGED=$(git log --oneline --merges --first-parent main | wc -l); echo \"Merge commits na main: $MERGED\"; test \"$MERGED\" -ge 8",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 30,
+      "points": 2.0
+    },
+    {
+      "name": "Issues (≥5 referenciadas nos commits)",
+      "setup": "",
+      "run": "REFS=$(git log --all --oneline | grep -oE '#[0-9]+' | sort -u | wc -l); echo \"Issues referenciadas: $REFS\"; test \"$REFS\" -ge 5",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 30,
+      "points": 1.0
+    },
+    {
+      "name": "Contribuição (≥3 membros com commits)",
+      "setup": "",
+      "run": "NUM=$(git shortlog -sn --all --no-merges | wc -l); echo \"Contribuidores: $NUM\"; test \"$NUM\" -ge 3",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 30,
+      "points": 1.0
+    },
+    {
+      "name": "GitHub Pages + README completo",
+      "setup": "",
+      "run": "CHECKS=0; if test -f index.html; then echo '✅ index.html existe'; CHECKS=$((CHECKS+1)); else echo '❌ index.html não encontrado'; fi; if test -f README.md; then echo '✅ README.md existe'; if grep -qi 'socialconnect' README.md || grep -qi 'social connect' README.md || grep -qi 'rede social' README.md; then echo '  ✅ Resumo do projeto'; CHECKS=$((CHECKS+1)); else echo '  ❌ Falta resumo do projeto'; fi; if grep -qi 'html' README.md || grep -qi 'css' README.md || grep -qi 'javascript' README.md || grep -qi 'tecnolog' README.md; then echo '  ✅ Tecnologias'; CHECKS=$((CHECKS+1)); else echo '  ❌ Falta tecnologias'; fi; if grep -qi 'integrante' README.md || grep -qi 'membro' README.md || grep -qi 'equipe' README.md || grep -qi 'RM' README.md; then echo '  ✅ Integrantes'; CHECKS=$((CHECKS+1)); else echo '  ❌ Falta integrantes'; fi; if grep -qi 'github.io' README.md || grep -qi 'pages' README.md; then echo '  ✅ Link do Pages'; CHECKS=$((CHECKS+1)); else echo '  ❌ Falta link do Pages'; fi; else echo '❌ README.md não encontrado'; fi; echo \"Checks: $CHECKS/5\"; test $CHECKS -ge 4",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 30,
+      "points": 1.0
+    },
+    {
+      "name": "📊 Resumo da avaliação",
+      "setup": "git fetch --all",
+      "run": "echo '=========================================='; echo '  RESUMO DA AVALIAÇÃO - CP2 Git e Github'; echo '=========================================='; echo ''; echo '  #  Critério                          Pts   Resultado'; echo '  -  --------------------------------  ----  ---------'; NOTA=0; R1='❌'; FALTANDO=0; for b in fix/imagens-cores fix/rodape fix/sobre-nos-texto feature/secao-equipe fix/menu-projetos feature/secao-contato feature/redes-sociais docs/readme; do if ! git branch -r | grep -q \"origin/$b\"; then FALTANDO=$((FALTANDO+1)); fi; done; if test $FALTANDO -eq 0; then R1='✅'; NOTA=$(echo \"$NOTA + 1.5\" | bc); fi; echo \"  1  Branches obrigatórias              1.5   $R1\"; R2='❌'; INVALIDAS=0; TOTALB=0; for b in $(git branch -r | grep -v HEAD | grep -v main | sed 's| *origin/||'); do TOTALB=$((TOTALB+1)); case \"$b\" in feature/*|fix/*|hotfix/*|docs/*|style/*|refactor/*) ;; *) INVALIDAS=$((INVALIDAS+1)) ;; esac; done; if test $TOTALB -ge 1 && test $INVALIDAS -eq 0; then R2='✅'; NOTA=$(echo \"$NOTA + 1.0\" | bc); fi; echo \"  2  Padrão de nomes                    1.0   $R2\"; R3='❌'; TOTAL=0; CORRETOS=0; git log --oneline --no-merges --all | while IFS= read -r line; do MSG=$(echo \"$line\" | cut -d' ' -f2-); case \"$MSG\" in Merge*) continue ;; esac; TOTAL=$((TOTAL+1)); case \"$MSG\" in feat:*|feat\\(*|fix:*|fix\\(*|docs:*|docs\\(*|style:*|style\\(*|refactor:*|refactor\\(*|test:*|test\\(*|chore:*|chore\\(*|perf:*|perf\\(*|ci:*|ci\\(*|build:*|build\\(*|revert:*|revert\\(*) CORRETOS=$((CORRETOS+1)) ;; esac; echo \"$CORRETOS $TOTAL\" > /tmp/cc_sum; done; if test -f /tmp/cc_sum; then read C T < /tmp/cc_sum; if test \"$T\" -gt 0; then P=$((C*100/T)); if test $P -ge 80; then R3='✅'; NOTA=$(echo \"$NOTA + 1.5\" | bc); fi; fi; fi; echo \"  3  Conventional Commits               1.5   $R3\"; R4='❌'; INSUF=0; ENC=0; for b in fix/imagens-cores fix/rodape fix/sobre-nos-texto feature/secao-equipe fix/menu-projetos feature/secao-contato feature/redes-sociais docs/readme; do if git branch -r | grep -q \"origin/$b\"; then ENC=$((ENC+1)); CNT=$(git log --oneline origin/main..origin/$b --no-merges 2>/dev/null | wc -l); if test \"$CNT\" -lt 2; then INSUF=$((INSUF+1)); fi; fi; done; if test $ENC -ge 1 && test $INSUF -eq 0; then R4='✅'; NOTA=$(echo \"$NOTA + 1.0\" | bc); fi; echo \"  4  Mín. 2 commits por branch          1.0   $R4\"; R5='❌'; MRG=$(git log --oneline --merges --first-parent main | wc -l); if test \"$MRG\" -ge 8; then R5='✅'; NOTA=$(echo \"$NOTA + 2.0\" | bc); fi; echo \"  5  Pull Requests mergeados (≥8)       2.0   $R5\"; R6='❌'; ISS=$(git log --all --oneline | grep -oE '#[0-9]+' | sort -u | wc -l); if test \"$ISS\" -ge 5; then R6='✅'; NOTA=$(echo \"$NOTA + 1.0\" | bc); fi; echo \"  6  Issues referenciadas (≥5)          1.0   $R6\"; R7='❌'; CTB=$(git shortlog -sn --all --no-merges | wc -l); if test \"$CTB\" -ge 3; then R7='✅'; NOTA=$(echo \"$NOTA + 1.0\" | bc); fi; echo \"  7  Contribuição (≥3 membros)          1.0   $R7\"; R8='❌'; CK=0; if test -f index.html; then CK=$((CK+1)); fi; if test -f README.md; then if grep -qi 'socialconnect' README.md || grep -qi 'social connect' README.md || grep -qi 'rede social' README.md; then CK=$((CK+1)); fi; if grep -qi 'html' README.md || grep -qi 'css' README.md || grep -qi 'javascript' README.md || grep -qi 'tecnolog' README.md; then CK=$((CK+1)); fi; if grep -qi 'integrante' README.md || grep -qi 'membro' README.md || grep -qi 'equipe' README.md || grep -qi 'RM' README.md; then CK=$((CK+1)); fi; if grep -qi 'github.io' README.md || grep -qi 'pages' README.md; then CK=$((CK+1)); fi; fi; if test $CK -ge 4; then R8='✅'; NOTA=$(echo \"$NOTA + 1.0\" | bc); fi; echo \"  8  GitHub Pages + README               1.0   $R8\"; echo '  -  --------------------------------  ----  ---------'; echo \"     NOTA FINAL                        10.0  $NOTA\"; echo ''; echo '=========================================='",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 60,
+      "points": 0
+    }
+  ]
+}
