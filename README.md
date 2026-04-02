@@ -1,3 +1,32 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/uXYeLev1)
-# Case-Social-Connect
-Repositório que servirá como 1º Checkpoint da disciplina de WebDev da FIAP
+# SocialConnect
+
+## Sobre o projeto
+
+O SocialConnect é uma plataforma web desenvolvida com o objetivo de conectar pessoas de forma simples, segura e eficiente. A aplicação apresenta uma interface intuitiva, permitindo que usuários encontrem informações, conheçam a equipe por trás do projeto e entrem em contato facilmente.
+
+---
+
+## Tecnologias utilizadas
+
+* HTML5
+* CSS3
+
+---
+
+## Integrantes
+
+* NOME COMPLETO - RM XXXXXX
+* NOME COMPLETO - RM XXXXXX
+* NOME COMPLETO - RM XXXXXX
+* NOME COMPLETO - RM XXXXXX
+* NOME COMPLETO - RM XXXXXX
+
+---
+
+## Acesso ao projeto
+
+O projeto está disponível através do GitHub Pages:
+
+https://vbzt.github.io/CP1-WebDev-Base/
+
+---
